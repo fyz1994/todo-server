@@ -31,7 +31,7 @@ module.exports.signup = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      return res.json({
         meta: {
           code: -1,
           errors: errors.array(),
@@ -80,7 +80,7 @@ module.exports.signin = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      return res.json({
         meta: {
           code: -1,
           errors: errors.array(),
@@ -96,7 +96,7 @@ module.exports.signin = [
         }
 
         if (!user) {
-          res.status(400).json({
+          res.json({
             meta: {
               code: -1,
               errors: ["此用户不存在"],
@@ -113,7 +113,7 @@ module.exports.signin = [
               data: null,
             });
           } else {
-            res.status(400).json({
+            res.json({
               meta: {
                 code: -1,
                 errors: ["用户名或密码错误"],

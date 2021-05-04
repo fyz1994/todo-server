@@ -49,7 +49,7 @@ module.exports.add_todoItem = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      return res.json({
         meta: {
           code: -1,
           errors: errors.array(),
@@ -88,7 +88,7 @@ module.exports.update_todoItem = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      return res.json({
         meta: {
           code: -1,
           errors: errors.array(),
@@ -115,7 +115,7 @@ module.exports.delete_todoItem = (req, res, next) => {
   const { id } = req.params;
 
   if (!id) {
-    res.status(400).json({
+    res.json({
       meta: {
         code: -1,
         errors: ["id 为必传参数"],
