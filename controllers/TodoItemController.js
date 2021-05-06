@@ -1,32 +1,44 @@
-const TodoItem = require("../models/todoItem");
 const { body, validationResult } = require("express-validator");
+const TodoItem = require("../models/todoItem");
 
 module.exports.index = (req, res) => {
   const { id } = req.params;
+  const { user } = req;
+
   if (!!id) {
-    TodoItem.findById(id).exec((err, todo) => {
+    TodoItem.findOne({ id, author: user.id }).exec((err, todo) => {
       if (err) {
         console.error(err, "查询失败");
-        res.status(500);
+        res.sendStatus(500);
       } else {
-        res.send({
-          meta: {
-            code: 0,
-            errors: [""],
-          },
-          data: todo && todo.toJSON({ virtuals: true }),
-        });
+        if (!todo) {
+          res.json({
+            meta: {
+              code: -1,
+              errors: ["找不到该待办事项"],
+            },
+            data: null,
+          });
+        } else {
+          res.send({
+            meta: {
+              code: 0,
+              errors: [""],
+            },
+            data: todo && todo.toJSON({ virtuals: true }),
+          });
+        }
       }
     });
   } else {
     const { keyword } = req.query;
 
-    TodoItem.find({ content: new RegExp(keyword || "") })
+    TodoItem.find({ author: user.id, content: new RegExp(keyword || "") })
       .sort({ _id: -1 })
       .exec((err, todoItems) => {
         if (err) {
           console.error(err, "查询失败");
-          res.status(500);
+          res.sendStatus(500);
         }
 
         res.send({
@@ -58,10 +70,11 @@ module.exports.add_todoItem = [
       });
     } else {
       const { content } = req.body;
-      TodoItem.create({ content }, (err, todo) => {
+      const { user } = req;
+      TodoItem.create({ content, author: user.id }, (err, todo) => {
         if (err) {
           console.error(err, "保存失败");
-          res.status(500);
+          res.sendStatus(500);
         } else {
           res.json({
             meta: {
@@ -84,7 +97,6 @@ module.exports.update_todoItem = [
     .trim()
     .escape(),
   (req, res) => {
-    console.log(req.body);
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -97,15 +109,31 @@ module.exports.update_todoItem = [
       });
     } else {
       const { content, id } = req.body;
-      TodoItem.findByIdAndUpdate(id, { content }, {}, (err, todo) => {
+      const { user } = req;
+
+      TodoItem.findOne({ id, author: user.id }).exec((err, todo) => {
         if (err) {
-          console.error(err, "更新失败");
-          res.status(500);
+          console.error(err, "定位该待办事项失败");
+          res.sendStatus(500);
+        } else if (!todo) {
+          res.json({
+            meta: { code: -1, errors: ["定位该待办事项失败"] },
+            data: null,
+          });
+        } else {
+          todo
+            .update()
+            .then(
+              res.json({
+                meta: { code: 0, errors: [""] },
+                data: null,
+              })
+            )
+            .catch((err) => {
+              console.error(err, "更新失败");
+              res.sendStatus(500);
+            });
         }
-        res.json({
-          meta: { code: 0, errors: [""] },
-          data: null,
-        });
       });
     }
   },
@@ -123,15 +151,25 @@ module.exports.delete_todoItem = (req, res, next) => {
       data: null,
     });
   } else {
-    TodoItem.findByIdAndRemove(id, {}, (err, todo) => {
-      if (err) {
-        console.error(err, "删除失败");
-        res.status(500);
+    const { user } = req;
+
+    TodoItem.findOne({ id, author: user.id }).exec((err, todo) => {
+      if (err || !todo) {
+        console.error(err, "定位该待办事项失败");
+        res.sendStatus(500);
       } else {
-        res.json({
-          meta: { code: 0, errors: [""] },
-          data: "删除chengg",
-        });
+        todo
+          .remove()
+          .then(
+            res.json({
+              meta: { code: 0, errors: [""] },
+              data: "删除成功",
+            })
+          )
+          .catch((err) => {
+            console.error(err, "删除失败");
+            res.sendStatus(500);
+          });
       }
     });
   }

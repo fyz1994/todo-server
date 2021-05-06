@@ -1,5 +1,7 @@
-const User = require("../models/users");
 const { body, validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
+
+const User = require("../models/users");
 
 module.exports.signup = [
   body("name").not().isEmpty().withMessage("用户名不能为空").trim().escape(),
@@ -73,6 +75,8 @@ module.exports.signup = [
   },
 ];
 
+const accessTokenSecret = "youraccesstokensecret";
+
 module.exports.signin = [
   body("name").not().isEmpty().withMessage("用户名不能为空").trim().escape(),
   body("password").not().isEmpty().withMessage("密码不能为空").trim().escape(),
@@ -105,12 +109,17 @@ module.exports.signin = [
           });
         } else {
           if (user.password === password) {
+            const accessToken = jwt.sign(
+              { username: user.account, id: user.id },
+              process.env.ACCESS_TOKEN_SECRET
+            );
+
             res.json({
               meta: {
                 code: 0,
                 errors: [""],
               },
-              data: null,
+              data: accessToken,
             });
           } else {
             res.json({
