@@ -6,7 +6,7 @@ module.exports.index = (req, res) => {
   const { user } = req;
 
   if (!!id) {
-    TodoItem.findOne({ id, author: user.id }).exec((err, todo) => {
+    TodoItem.findOne({ _id: id, author: user.id }).exec((err, todo) => {
       if (err) {
         console.error(err, "查询失败");
         res.sendStatus(500);
@@ -108,33 +108,30 @@ module.exports.update_todoItem = [
         data: null,
       });
     } else {
-      const { content, id } = req.body;
+      const { content, complete, id } = req.body;
       const { user } = req;
 
-      TodoItem.findOne({ id, author: user.id }).exec((err, todo) => {
-        if (err) {
-          console.error(err, "定位该待办事项失败");
-          res.sendStatus(500);
-        } else if (!todo) {
-          res.json({
-            meta: { code: -1, errors: ["定位该待办事项失败"] },
-            data: null,
-          });
-        } else {
-          todo
-            .update()
-            .then(
-              res.json({
-                meta: { code: 0, errors: [""] },
-                data: null,
-              })
-            )
-            .catch((err) => {
-              console.error(err, "更新失败");
-              res.sendStatus(500);
+      TodoItem.findOneAndUpdate(
+        { _id: id, author: user.id },
+        { content, complete },
+        {},
+        (err, todo) => {
+          if (err) {
+            console.error(err, "定位该待办事项失败");
+            res.sendStatus(500);
+          } else if (!todo) {
+            res.json({
+              meta: { code: -1, errors: ["定位该待办事项失败"] },
+              data: null,
             });
+          } else {
+            res.json({
+              meta: { code: 0, errors: [""] },
+              data: null,
+            });
+          }
         }
-      });
+      );
     }
   },
 ];
@@ -153,7 +150,7 @@ module.exports.delete_todoItem = (req, res, next) => {
   } else {
     const { user } = req;
 
-    TodoItem.findOne({ id, author: user.id }).exec((err, todo) => {
+    TodoItem.findOne({ author: user.id, _id: id }).exec((err, todo) => {
       if (err || !todo) {
         console.error(err, "定位该待办事项失败");
         res.sendStatus(500);

@@ -75,8 +75,6 @@ module.exports.signup = [
   },
 ];
 
-const accessTokenSecret = "youraccesstokensecret";
-
 module.exports.signin = [
   body("name").not().isEmpty().withMessage("用户名不能为空").trim().escape(),
   body("password").not().isEmpty().withMessage("密码不能为空").trim().escape(),

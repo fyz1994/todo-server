@@ -7,9 +7,6 @@ const TodoItemSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   content: { type: String, required: true, max: 100 },
   complete: { type: Boolean, default: false },
-  match: { type: Boolean, default: true },
-  delete: { type: Boolean, default: false },
-  edit: { type: Boolean, default: false },
   create: { type: Date, default: Date.now },
 });
 
