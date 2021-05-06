@@ -117,7 +117,13 @@ module.exports.signin = [
                 code: 0,
                 errors: [""],
               },
-              data: accessToken,
+              data: {
+                name: user.account,
+                id: user.id,
+                email: user.email,
+                mobile: user.mobile,
+                token: accessToken,
+              },
             });
           } else {
             res.json({
