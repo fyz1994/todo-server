@@ -76,7 +76,7 @@ module.exports.signup = [
 ];
 
 module.exports.signin = [
-  body("name").not().isEmpty().withMessage("用户名不能为空").trim().escape(),
+  body("mobile").not().isEmpty().withMessage("手机号不能为空").trim().escape(),
   body("password").not().isEmpty().withMessage("密码不能为空").trim().escape(),
   (req, res) => {
     const errors = validationResult(req);
@@ -90,8 +90,8 @@ module.exports.signin = [
         data: null,
       });
     } else {
-      const { name, password } = req.body;
-      User.findOne({ account: name }, {}, {}, (err, user) => {
+      const { mobile, password } = req.body;
+      User.findOne({ mobile }, {}, {}, (err, user) => {
         if (err) {
           console.error(err, "查找用户失败");
           res.status(500);
@@ -129,7 +129,7 @@ module.exports.signin = [
             res.json({
               meta: {
                 code: -1,
-                errors: ["用户名或密码错误"],
+                errors: ["手机号或密码错误"],
               },
               data: null,
             });
