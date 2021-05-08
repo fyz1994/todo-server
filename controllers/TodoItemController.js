@@ -90,12 +90,6 @@ module.exports.add_todoItem = [
 ];
 module.exports.update_todoItem = [
   body("id").not().isEmpty().withMessage("id 不能为空").trim().escape(),
-  body("content")
-    .not()
-    .isEmpty()
-    .withMessage("content 不能为空")
-    .trim()
-    .escape(),
   (req, res) => {
     const errors = validationResult(req);
 
