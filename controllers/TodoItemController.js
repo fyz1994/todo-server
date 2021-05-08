@@ -105,46 +105,34 @@ module.exports.update_todoItem = [
       const { content, complete, id } = req.body;
       const { user } = req;
 
-      TodoItem.findOne({ _id: id, author: user.id }, {}, {}, (err, todo) => {
-        if (err) {
-          console.error(err, "定位该待办事项失败");
-          res.sendStatus(500);
-        } else if (!todo) {
-          res.json({
-            meta: { code: -1, errors: ["定位该待办事项失败"] },
-            data: null,
-          });
-        } else {
-          const newTodo = { ...todo.toJSON({ virtuals: true }) };
-          if (!!content) {
-            newTodo.content = content;
-          } else if (typeof complete === "boolean") {
-            newTodo.complete = complete;
+      const newTodo = {};
+      if (!!content) {
+        newTodo.content = content;
+      }
+      if (typeof complete === "boolean") {
+        newTodo.complete = complete;
+      }
+      TodoItem.findOneAndUpdate(
+        { _id: id, author: user.id },
+        newTodo,
+        {},
+        (err, todo) => {
+          if (err) {
+            console.error(err, "定位该待办事项失败");
+            res.sendStatus(500);
+          } else if (!todo) {
+            res.json({
+              meta: { code: -1, errors: ["定位该待办事项失败"] },
+              data: null,
+            });
+          } else {
+            res.json({
+              meta: { code: 0, errors: [""] },
+              data: null,
+            });
           }
-          console.log(newTodo);
-          TodoItem.findOneAndUpdate(
-            { _id: id, author: user.id },
-            newTodo,
-            {},
-            (err, todo) => {
-              if (err) {
-                console.error(err, "定位该待办事项失败");
-                res.sendStatus(500);
-              } else if (!todo) {
-                res.json({
-                  meta: { code: -1, errors: ["定位该待办事项失败"] },
-                  data: null,
-                });
-              } else {
-                res.json({
-                  meta: { code: 0, errors: [""] },
-                  data: todo.toJSON({ virtuals: true }),
-                });
-              }
-            }
-          );
         }
-      });
+      );
     }
   },
 ];
