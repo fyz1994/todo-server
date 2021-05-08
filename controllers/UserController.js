@@ -39,7 +39,7 @@ module.exports.signup = [
       return res.json({
         meta: {
           code: -1,
-          errors: errors.array(),
+          errors: errors.array().map((item) => item.msg),
         },
         data: null,
       });
@@ -88,7 +88,7 @@ module.exports.signin = [
       return res.json({
         meta: {
           code: -1,
-          errors: errors.array(),
+          errors: errors.array().map((item) => item.msg),
         },
         data: null,
       });

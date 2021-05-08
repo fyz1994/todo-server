@@ -64,7 +64,7 @@ module.exports.add_todoItem = [
       return res.json({
         meta: {
           code: -1,
-          errors: errors.array(),
+          errors: errors.array().map((item) => item.msg),
         },
         data: null,
       });
@@ -103,7 +103,7 @@ module.exports.update_todoItem = [
       return res.json({
         meta: {
           code: -1,
-          errors: errors.array(),
+          errors: errors.array().map((item) => item.msg),
         },
         data: null,
       });
